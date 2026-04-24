@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>📖 Bíblia Sagrada Offline</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%); 
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+      color: #f0f0f0; 
+      padding-bottom: 30px;
+      min-height: 100vh;
+    }
+    
+    header { 
+      background: linear-gradient(180deg, #2a3f5f 0%, #1e2a3a 100%);
+      padding: 20px 15px; 
+      text-align: center; 
+      border-bottom: 3px solid #c9a227;
+      color: #f5e7b2; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5), 
+                  inset 0 1px 0 rgba(255,255,255,0.1);
+      position: relative;
+    }
+    
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent);
+    }
+    
+    .status-indicator { 
+      font-size: 0.7rem; 
+      background: linear-gradient(180deg, #1e3a1e 0%, #163016 100%);
+      padding: 6px 12px; 
+      border-radius: 20px; 
+      color: #a8d8a8;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3),
+                  0 2px 4px rgba(0,0,0,0.2);
+      border: 1px solid #2d5a2d;
+    }
+    
+    .container { 
+      padding: 15px; 
+      max-width: 800px; 
+      margin: 0 auto; 
+    }
+    
+    /* Responsivo para mobile */
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+      header {
+        padding: 15px 10px;
+        font-size: 0.9rem;
+      }
+      .grade-livros {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 6px !important;
+      }
+      .botao-livro {
+        padding: 8px 2px !important;
+        font-size: 0.7rem !important;
+      }
+    }
+    
+    @media (min-width: 601px) and (max-width: 1024px) {
+      .grade-livros {
+        grid-template-columns: repeat(4, 1fr) !important;
+      }
+    }
+    
+    @media (min-width: 1025px) {
+      .grade-livros {
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 10px !important;
+      }
+      .container {
+        max-width: 900px;
+      }
+    }
+    
+    .testamento-titulo { 
+      font-size: 1.1rem; 
+      margin: 25px 0 15px; 
+      color: #f0d89c; 
+      border-bottom: 2px solid #4a6482; 
+      padding-bottom: 8px;
+      font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      letter-spacing: 1px;
+    }
+    
+    .grade-livros { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 8px; 
+      margin-bottom: 20px;
+    }
+    
+    .botao-livro { 
+      background: linear-gradient(180deg, #3a5068 0%, #2c3e50 100%);
+      border: 1px solid #5a7a9a; 
+      color: #e8dcc8; 
+      padding: 12px 4px; 
+      border-radius: 12px; 
+      font-size: 0.75rem; 
+      text-align: center; 
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4),
+                  inset 0 2px 0 rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      font-weight: 500;
+    }
+    
+    .botao-livro:hover {
+      background: linear-gradient(180deg, #4a6080 0%, #3a4e60 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5),
+                  inset 0 2px 0 rgba(255,255,255,0.15);
+      color: #fff;
+    }
+    
+    .botao-livro:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3),
+                  inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    
+    .botao-livro.selecionado { 
+      background: linear-gradient(180deg, #e6b422 0%, #c99718 100%);
+      color: #000; 
+      font-weight: bold;
+      border-color: #f0d050;
+      box-shadow: 0 0 20px rgba(230,180,34,0.5),
+                  0 4px 8px rgba(0,0,0,0.4),
+                  inset 0 2px 0 rgba(255,255,255,0.3);
+      text-shadow: none;
+    }
+    
+    .livro-destaque { 
+      background: linear-gradient(135deg, #3a5068 0%, #2a3f5f 100%);
+      padding: 20px; 
+      border-radius: 15px; 
+      border-left: 8px solid #e4b13e; 
+      margin-bottom: 20px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5),
+                  inset 0 2px 0 rgba(255,255,255,0.1);
+      border: 1px solid #4a6482;
+    }
+    
+    .barra-capitulo { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      background: linear-gradient(180deg, #2a3a4a 0%, #1e2733 100%);
+      border-radius: 40px; 
+      padding: 5px; 
+      margin-bottom: 20px; 
+      border: 2px solid #3e5368;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4),
+                  inset 0 2px 0 rgba(255,255,255,0.1);
+    }
+    
+    .btn-nav { 
+      background: linear-gradient(180deg, #4a6080 0%, #2c3e50 100%);
+      border: 2px solid #6a8aaa; 
+      color: #f5d67a; 
+      width: 44px; 
+      height: 44px; 
+      border-radius: 50%; 
+      font-size: 1.2rem; 
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4),
+                  inset 0 2px 0 rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+    
+    .btn-nav:hover:not(:disabled) {
+      background: linear-gradient(180deg, #5a7090 0%, #3a4e60 100%);
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+    }
+    
+    .btn-nav:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+    
+    .btn-nav:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    
+    .barra-capitulo select { 
+      background: linear-gradient(180deg, #1a2430 0%, #0f1a24 100%);
+      color: white; 
+      border: 2px solid #5a7a9a; 
+      padding: 10px; 
+      border-radius: 20px; 
+      flex: 1; 
+      margin: 0 10px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    
+    .verso { 
+      background: linear-gradient(135deg, #15202e 0%, #101a24 100%);
+      margin: 12px 0; 
+      padding: 18px; 
+      border-radius: 12px; 
+      border-left: 5px solid #e4b13e; 
+      line-height: 1.6;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3),
+                  inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: all 0.2s ease;
+      border: 1px solid #2a3a4a;
+    }
+    
+    .verso:hover {
+      border-left-color: #f0d050;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4),
+                  0 0 10px rgba(230,180,34,0.2),
+                  inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    
+    .verso b { 
+      color: #fad46b; 
+      margin-right: 8px;
+      font-size: 1.1rem;
+      text-shadow: 0 0 8px rgba(250,212,107,0.3);
+    }
+    
+    .loading { 
+      text-align: center; 
+      padding: 30px; 
+      color: #8a9bb5;
+      font-style: italic;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    #conteudo {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span style="font-size: 1.2rem; font-weight: bold;">📖 Bíblia Sagrada</span>
+  <span id="statusApi" class="status-indicator">📴 Offline</span>
+</header>
+
+<div class="container">
+  <!-- Seção de livros do Antigo Testamento -->
+  <div class="testamento-titulo">📜 ANTIGO TESTAMENTO</div>
+  <div class="grade-livros" id="botoesVT"></div>
+  
+  <!-- Seção de livros do Novo Testamento -->
+  <div class="testamento-titulo">✝️ NOVO TESTAMENTO</div>
+  <div class="grade-livros" id="botoesNT"></div>
+  
+  <!-- Destaque do livro atual -->
+  <div class="livro-destaque">
+    <h2 id="nomeLivroAtual" style="font-size: 1.3rem;">Gênesis</h2>
+    <span id="infoCapitulo" style="font-weight: bold; color: #f5d67a;">Cap. 1</span>
+  </div>
+  
+  <!-- Barra de navegação de capítulos -->
+  <div class="barra-capitulo">
+    <button id="btnAnterior" class="btn-nav" onclick="mudarCapitulo(-1)">◀</button>
+    <select id="selectCapituloTopo" onchange="aoMudarCapituloTopo()"></select>
+    <button id="btnProximo" class="btn-nav" onclick="mudarCapitulo(1)">▶</button>
+  </div>
+
+  <!-- Conteúdo dos versículos -->
+  <div id="conteudo">
+    <div class="loading">Carregando a Palavra de Deus...</div>
+  </div>
+</div>
+
+<script>
+  "use strict";
+
+  let BIBLIA_DADOS = null; 
+  let parteCarregada = 0;
+  let livroAtual = 'gn';
+  let capituloAtual = 1;
+
+  const LIVROS_API = {
+    'gn': { nome: "Gênesis", capitulos: 50, testament: "VT" }, 'ex': { nome: "Êxodo", capitulos: 40, testament: "VT" },
+    'lv': { nome: "Levítico", capitulos: 27, testament: "VT" }, 'nm': { nome: "Números", capitulos: 36, testament: "VT" },
+    'dt': { nome: "Deuteronômio", capitulos: 34, testament: "VT" }, 'js': { nome: "Josué", capitulos: 24, testament: "VT" },
+    'jz': { nome: "Juízes", capitulos: 21, testament: "VT" }, 'rt': { nome: "Rute", capitulos: 4, testament: "VT" },
+    '1sm': { nome: "1 Samuel", capitulos: 31, testament: "VT" }, '2sm': { nome: "2 Samuel", capitulos: 24, testament: "VT" },
+    '1rs': { nome: "1 Reis", capitulos: 22, testament: "VT" }, '2rs': { nome: "2 Reis", capitulos: 25, testament: "VT" },
+    '1cr': { nome: "1 Crônicas", capitulos: 29, testament: "VT" }, '2cr': { nome: "2 Crônicas", capitulos: 36, testament: "VT" },
+    'ed': { nome: "Esdras", capitulos: 10, testament: "VT" }, 'ne': { nome: "Neemias", capitulos: 13, testament: "VT" },
+    'et': { nome: "Ester", capitulos: 10, testament: "VT" }, 'jó': { nome: "Jó", capitulos: 42, testament: "VT" },
+    'sl': { nome: "Salmos", capitulos: 150, testament: "VT" }, 'pv': { nome: "Provérbios", capitulos: 31, testament: "VT" },
+    'ec': { nome: "Eclesiastes", capitulos: 12, testament: "VT" }, 'ct': { nome: "Cânticos", capitulos: 8, testament: "VT" },
+    'is': { nome: "Isaías", capitulos: 66, testament: "VT" }, 'jr': { nome: "Jeremias", capitulos: 52, testament: "VT" },
+    'lm': { nome: "Lamentações", capitulos: 5, testament: "VT" }, 'ez': { nome: "Ezequiel", capitulos: 48, testament: "VT" },
+    'dn': { nome: "Daniel", capitulos: 12, testament: "VT" }, 'os': { nome: "Oseias", capitulos: 14, testament: "VT" },
+    'jl': { nome: "Joel", capitulos: 3, testament: "VT" }, 'am': { nome: "Amós", capitulos: 9, testament: "VT" },
+    'ob': { nome: "Obadias", capitulos: 1, testament: "VT" }, 'jn': { nome: "Jonas", capitulos: 4, testament: "VT" },
+    'mq': { nome: "Miqueias", capitulos: 7, testament: "VT" }, 'na': { nome: "Naum", capitulos: 3, testament: "VT" },
+    'hc': { nome: "Habacuque", capitulos: 3, testament: "VT" }, 'sf': { nome: "Sofonias", capitulos: 3, testament: "VT" },
+    'ag': { nome: "Ageu", capitulos: 2, testament: "VT" }, 'zc': { nome: "Zacarias", capitulos: 14, testament: "VT" },
+    'ml': { nome: "Malaquias", capitulos: 4, testament: "VT" },
+    'mt': { nome: "Mateus", capitulos: 28, testament: "NT" }, 'mc': { nome: "Marcos", capitulos: 16, testament: "NT" },
+    'lc': { nome: "Lucas", capitulos: 24, testament: "NT" }, 'jo': { nome: "João", capitulos: 21, testament: "NT" },
+    'at': { nome: "Atos", capitulos: 28, testament: "NT" }, 'rm': { nome: "Romanos", capitulos: 16, testament: "NT" },
+    '1co': { nome: "1 Coríntios", capitulos: 16, testament: "NT" }, '2co': { nome: "2 Coríntios", capitulos: 13, testament: "NT" },
+    'gl': { nome: "Gálatas", capitulos: 6, testament: "NT" }, 'ef': { nome: "Efésios", capitulos: 6, testament: "NT" },
+    'fp': { nome: "Filipenses", capitulos: 4, testament: "NT" }, 'cl': { nome: "Colossenses", capitulos: 4, testament: "NT" },
+    '1ts': { nome: "1 Tessalonicenses", capitulos: 5, testament: "NT" }, '2ts': { nome: "2 Tessalonicenses", capitulos: 3, testament: "NT" },
+    '1tm': { nome: "1 Timóteo", capitulos: 6, testament: "NT" }, '2tm': { nome: "2 Timóteo", capitulos: 4, testament: "NT" },
+    'tt': { nome: "Tito", capitulos: 3, testament: "NT" }, 'fm': { nome: "Filemom", capitulos: 1, testament: "NT" },
+    'hb': { nome: "Hebreus", capitulos: 13, testament: "NT" }, 'tg': { nome: "Tiago", capitulos: 5, testament: "NT" },
+    '1pe': { nome: "1 Pedro", capitulos: 5, testament: "NT" }, '2pe': { nome: "2 Pedro", capitulos: 3, testament: "NT" },
+    '1jo': { nome: "1 João", capitulos: 5, testament: "NT" }, '2jo': { nome: "2 João", capitulos: 1, testament: "NT" },
+    '3jo': { nome: "3 João", capitulos: 1, testament: "NT" }, 'jd': { nome: "Judas", capitulos: 1, testament: "NT" },
+    'ap': { nome: "Apocalipse", capitulos: 22, testament: "NT" }
+  };
+
+  // Distribuição dos livros nos arquivos JSON
+  const DISTRIBUICAO_PARTES = {
+    1: ['gn','ex','lv','nm','dt','js','jz','rt','1sm','2sm','1rs','2rs','1cr','2cr','ed','ne','et','jó'],
+    2: ['sl','pv','ec','ct','is','jr','lm','ez','dn','os','jl','am','ob','jn','mq','na','hc','sf','ag','zc','ml'],
+    3: ['mt','mc','lc','jo','at','rm','1co','2co','gl','ef','fp','cl','1ts','2ts','1tm','2tm','tt','fm','hb','tg','1pe','2pe','1jo','2jo','3jo','jd','ap']
+  };
+
+  // Mapeamento dos códigos para as abreviaturas usadas nos arquivos JSON
+  const LIVRO_PARA_NOME_JSON = {
+    'gn': 'Gn', 'ex': 'Ex', 'lv': 'Lv', 'nm': 'Nm', 'dt': 'Dt',
+    'js': 'Js', 'jz': 'Jz', 'rt': 'Rt', '1sm': '1Sm', '2sm': '2Sm',
+    '1rs': '1Rs', '2rs': '2Rs', '1cr': '1Cr', '2cr': '2Cr',
+    'ed': 'Ed', 'ne': 'Ne', 'et': 'Et', 'jó': 'Jó',
+    'sl': 'Sl', 'pv': 'Pv', 'ec': 'Ec', 'ct': 'Ct',
+    'is': 'Is', 'jr': 'Jr', 'lm': 'Lm', 'ez': 'Ez', 'dn': 'Dn',
+    'os': 'Os', 'jl': 'Jl', 'am': 'Am', 'ob': 'Ob', 'jn': 'Jn',
+    'mq': 'Mq', 'na': 'Na', 'hc': 'Hc', 'sf': 'Sf',
+    'ag': 'Ag', 'zc': 'Zc', 'ml': 'Ml',
+    'mt': 'Mt', 'mc': 'Mc', 'lc': 'Lc', 'jo': 'Jo', 'at': 'At',
+    'rm': 'Rm', '1co': '1Co', '2co': '2Co', 'gl': 'Gl', 'ef': 'Ef',
+    'fp': 'Fp', 'cl': 'Cl', '1ts': '1Ts', '2ts': '2Ts',
+    '1tm': '1Tm', '2tm': '2Tm', 'tt': 'Tt', 'fm': 'Fm',
+    'hb': 'Hb', 'tg': 'Tg', '1pe': '1Pe', '2pe': '2Pe',
+    '1jo': '1Jo', '2jo': '2Jo', '3jo': '3Jo', 'jd': 'Jd', 'ap': 'Ap'
+  };
+
+  const LIVRO_PARA_PARTE = {};
+  Object.entries(DISTRIBUICAO_PARTES).forEach(([parte, livros]) => {
+    livros.forEach(livro => {
+      LIVRO_PARA_PARTE[livro] = parseInt(parte);
+    });
+  });
+
+  function obterParteDoLivro(livro) {
+    return LIVRO_PARA_PARTE[livro] || 1;
+  }
+
+  async function buscarDadosDaBiblia() {
+    const status = document.getElementById('statusApi');
+    const parteNecessaria = obterParteDoLivro(livroAtual);
+
+    if (parteCarregada === parteNecessaria && BIBLIA_DADOS) {
+      return true;
+    }
+
+    try {
+      status.textContent = `⏳ Carregando...`;
+      const resp = await fetch(`biblia_parte${parteNecessaria}.json`);
+      
+      if (!resp.ok) throw new Error(`Erro ao carregar`);
+      
+      BIBLIA_DADOS = await resp.json();
+      parteCarregada = parteNecessaria;
+      status.textContent = "📚 Bíblia Pronta";
+      return true;
+    } catch (e) {
+      status.textContent = "❌ Erro";
+      return false;
+    }
+  }
+
+  function renderizarVersiculos() {
+    const container = document.getElementById('conteudo');
+    if (!BIBLIA_DADOS) return;
+
+    const nomeNoJSON = LIVRO_PARA_NOME_JSON[livroAtual] || livroAtual;
+    
+    const filtrados = BIBLIA_DADOS.filter(i => 
+      i.livro === nomeNoJSON && i.capitulo == capituloAtual
+    );
+
+    if (filtrados.length === 0) {
+      container.innerHTML = `<div class="loading">Capítulo não encontrado.</div>`;
+      return;
+    }
+
+    filtrados.sort((a, b) => a.versiculo - b.versiculo);
+
+    container.innerHTML = filtrados.map(v => `
+      <div class="verso"><span><b>${v.versiculo}.</b> ${v.texto}</span></div>
+    `).join('');
+
+    document.getElementById('nomeLivroAtual').textContent = LIVROS_API[livroAtual].nome;
+    document.getElementById('infoCapitulo').textContent = `Cap. ${capituloAtual}`;
+    
+    document.getElementById('btnAnterior').disabled = capituloAtual <= 1;
+    document.getElementById('btnProximo').disabled = capituloAtual >= LIVROS_API[livroAtual].capitulos;
+    document.querySelectorAll('.botao-livro').forEach(b => b.classList.toggle('selecionado', b.dataset.id === livroAtual));
+  }
+
+  window.mudarCapitulo = (dir) => {
+    capituloAtual += dir;
+    document.getElementById('selectCapituloTopo').value = capituloAtual;
+    renderizarVersiculos();
+  };
+
+  window.aoMudarCapituloTopo = () => {
+    capituloAtual = parseInt(document.getElementById('selectCapituloTopo').value);
+    renderizarVersiculos();
+  };
+
+  function montarSelect() {
+    const sel = document.getElementById('selectCapituloTopo');
+    sel.innerHTML = "";
+    for (let i = 1; i <= LIVROS_API[livroAtual].capitulos; i++) {
+      const o = document.createElement('option'); 
+      o.value = i; 
+      o.textContent = `Cap. ${i}`;
+      sel.appendChild(o);
+    }
+    sel.value = capituloAtual;
+  }
+
+  function inicializar() {
+    const vt = document.getElementById('botoesVT');
+    const nt = document.getElementById('botoesNT');
+    
+    Object.keys(LIVROS_API).forEach(key => {
+      const btn = document.createElement('div');
+      btn.className = 'botao-livro';
+      btn.textContent = LIVROS_API[key].nome;
+      btn.dataset.id = key;
+      btn.onclick = async () => {
+        livroAtual = key; 
+        capituloAtual = 1;
+        montarSelect();
+        document.getElementById('conteudo').innerHTML = '<div class="loading">Carregando...</div>';
+        if (await buscarDadosDaBiblia()) renderizarVersiculos();
+      };
+      (LIVROS_API[key].testament === "VT" ? vt : nt).appendChild(btn);
+    });
+    
+    montarSelect();
+    buscarDadosDaBiblia().then(ok => { if(ok) renderizarVersiculos(); });
+  }
+
+  window.onload = inicializar;
+</script>
+</body>
+</html>
