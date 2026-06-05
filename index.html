@@ -541,17 +541,17 @@
                 0 0 18px rgba(226, 176, 74, 0.3);
         }
 
-        /* ============ VERSÍCULOS (FONTE AUMENTADA) ============ */
+        /* ============ VERSÍCULOS (FONTE MAIS AUMENTADA) ============ */
         .verso {
             background: rgba(16, 24, 38, 0.65);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            margin: 12px 0;
-            padding: 20px 22px;
+            margin: 14px 0;
+            padding: 22px 24px;
             border-radius: var(--radius-sm);
             border-left: 4px solid var(--gold);
-            line-height: 1.8;            /* Linha mais espaçada para leitura confortável */
-            font-size: 1.15rem;          /* FONTE DOS VERSÍCULOS AUMENTADA (era 0.95rem) */
+            line-height: 1.9;            /* Linha um pouco mais espaçada para a fonte maior */
+            font-size: 1.35rem;          /* TAMANHO DA LETRA AUMENTADO */
             letter-spacing: 0.3px;
             box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35),
                 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
@@ -581,8 +581,8 @@
         }
         .verso b {
             color: #fad46b;
-            margin-right: 10px;
-            font-size: 1.25rem;          /* Número do versículo aumentado proporcionalmente */
+            margin-right: 12px;
+            font-size: 1.45rem;          /* Número do versículo aumentado */
             font-weight: 700;
             text-shadow: 0 0 12px rgba(250, 212, 107, 0.4);
             letter-spacing: 0.5px;
@@ -714,73 +714,73 @@
         let livroAtual = 'gn';
         let capituloAtual = 1;
 
-        const LIVROS_API = {
-            'gn': { nome: "Gênesis", abrev: "GN", capitulos: 50, testament: "VT" },
-            'ex': { nome: "Êxodo", abrev: "EX", capitulos: 40, testament: "VT" },
-            'lv': { nome: "Levítico", abrev: "LV", capitulos: 27, testament: "VT" },
-            'nm': { nome: "Números", abrev: "NM", capitulos: 36, testament: "VT" },
-            'dt': { nome: "Deuteronômio", abrev: "DT", capitulos: 34, testament: "VT" },
-            'js': { nome: "Josué", abrev: "JS", capitulos: 24, testament: "VT" },
-            'jz': { nome: "Juízes", abrev: "JZ", capitulos: 21, testament: "VT" },
-            'rt': { nome: "Rute", abrev: "RT", capitulos: 4, testament: "VT" },
-            '1sm': { nome: "1 Samuel", abrev: "1SM", capitulos: 31, testament: "VT" },
-            '2sm': { nome: "2 Samuel", abrev: "2SM", capitulos: 24, testament: "VT" },
-            '1rs': { nome: "1 Reis", abrev: "1RS", capitulos: 22, testament: "VT" },
-            '2rs': { nome: "2 Reis", abrev: "2RS", capitulos: 25, testament: "VT" },
-            '1cr': { nome: "1 Crônicas", abrev: "1CR", capitulos: 29, testament: "VT" },
-            '2cr': { nome: "2 Crônicas", abrev: "2CR", capitulos: 36, testament: "VT" },
-            'ed': { nome: "Esdras", abrev: "ED", capitulos: 10, testament: "VT" },
-            'ne': { nome: "Neemias", abrev: "NE", capitulos: 13, testament: "VT" },
-            'et': { nome: "Ester", abrev: "ET", capitulos: 10, testament: "VT" },
-            'jó': { nome: "Jó", abrev: "JÓ", capitulos: 42, testament: "VT" },
-            'sl': { nome: "Salmos", abrev: "SL", capitulos: 150, testament: "VT" },
-            'pv': { nome: "Provérbios", abrev: "PV", capitulos: 31, testament: "VT" },
-            'ec': { nome: "Eclesiastes", abrev: "EC", capitulos: 12, testament: "VT" },
-            'ct': { nome: "Cânticos", abrev: "CT", capitulos: 8, testament: "VT" },
-            'is': { nome: "Isaías", abrev: "IS", capitulos: 66, testament: "VT" },
-            'jr': { nome: "Jeremias", abrev: "JR", capitulos: 52, testament: "VT" },
-            'lm': { nome: "Lamentações", abrev: "LM", capitulos: 5, testament: "VT" },
-            'ez': { nome: "Ezequiel", abrev: "EZ", capitulos: 48, testament: "VT" },
-            'dn': { nome: "Daniel", abrev: "DN", capitulos: 12, testament: "VT" },
-            'os': { nome: "Oseias", abrev: "OS", capitulos: 14, testament: "VT" },
-            'jl': { nome: "Joel", abrev: "JL", capitulos: 3, testament: "VT" },
-            'am': { nome: "Amós", abrev: "AM", capitulos: 9, testament: "VT" },
-            'ob': { nome: "Obadias", abrev: "OB", capitulos: 1, testament: "VT" },
-            'jn': { nome: "Jonas", abrev: "JN", capitulos: 4, testament: "VT" },
-            'mq': { nome: "Miqueias", abrev: "MQ", capitulos: 7, testament: "VT" },
-            'na': { nome: "Naum", abrev: "NA", capitulos: 3, testament: "VT" },
-            'hc': { nome: "Habacuque", abrev: "HC", capitulos: 3, testament: "VT" },
-            'sf': { nome: "Sofonias", abrev: "SF", capitulos: 3, testament: "VT" },
-            'ag': { nome: "Ageu", abrev: "AG", capitulos: 2, testament: "VT" },
-            'zc': { nome: "Zacarias", abrev: "ZC", capitulos: 14, testament: "VT" },
-            'ml': { nome: "Malaquias", abrev: "ML", capitulos: 4, testament: "VT" },
-            'mt': { nome: "Mateus", abrev: "MT", capitulos: 28, testament: "NT" },
-            'mc': { nome: "Marcos", abrev: "MC", capitulos: 16, testament: "NT" },
-            'lc': { nome: "Lucas", abrev: "LC", capitulos: 24, testament: "NT" },
-            'jo': { nome: "João", abrev: "JO", capitulos: 21, testament: "NT" },
-            'at': { nome: "Atos", abrev: "AT", capitulos: 28, testament: "NT" },
-            'rm': { nome: "Romanos", abrev: "RM", capitulos: 16, testament: "NT" },
-            '1co': { nome: "1 Coríntios", abrev: "1CO", capitulos: 16, testament: "NT" },
-            '2co': { nome: "2 Coríntios", abrev: "2CO", capitulos: 13, testament: "NT" },
-            'gl': { nome: "Gálatas", abrev: "GL", capitulos: 6, testament: "NT" },
-            'ef': { nome: "Efésios", abrev: "EF", capitulos: 6, testament: "NT" },
-            'fp': { nome: "Filipenses", abrev: "FP", capitulos: 4, testament: "NT" },
-            'cl': { nome: "Colossenses", abrev: "CL", capitulos: 4, testament: "NT" },
-            '1ts': { nome: "1 Tessalonicenses", abrev: "1TS", capitulos: 5, testament: "NT" },
-            '2ts': { nome: "2 Tessalonicenses", abrev: "2TS", capitulos: 3, testament: "NT" },
-            '1tm': { nome: "1 Timóteo", abrev: "1TM", capitulos: 6, testament: "NT" },
-            '2tm': { nome: "2 Timóteo", abrev: "2TM", capitulos: 4, testament: "NT" },
-            'tt': { nome: "Tito", abrev: "TT", capitulos: 3, testament: "NT" },
-            'fm': { nome: "Filemom", abrev: "FM", capitulos: 1, testament: "NT" },
-            'hb': { nome: "Hebreus", abrev: "HB", capitulos: 13, testament: "NT" },
-            'tg': { nome: "Tiago", abrev: "TG", capitulos: 5, testament: "NT" },
-            '1pe': { nome: "1 Pedro", abrev: "1PE", capitulos: 5, testament: "NT" },
-            '2pe': { nome: "2 Pedro", abrev: "2PE", capitulos: 3, testament: "NT" },
-            '1jo': { nome: "1 João", abrev: "1JO", capitulos: 5, testament: "NT" },
-            '2jo': { nome: "2 João", abrev: "2JO", capitulos: 1, testament: "NT" },
-            '3jo': { nome: "3 João", abrev: "3JO", capitulos: 1, testament: "NT" },
-            'jd': { nome: "Judas", abrev: "JD", capitulos: 1, testament: "NT" },
-            'ap': { nome: "Apocalipse", abrev: "AP", capitulos: 22, testament: "NT" }
+       const LIVROS_API = {
+            'gn': { nome: "Gênesis", abrev: "GENE", capitulos: 50, testament: "VT" },
+            'ex': { nome: "Êxodo", abrev: "EXOD", capitulos: 40, testament: "VT" },
+            'lv': { nome: "Levítico", abrev: "LEVI", capitulos: 27, testament: "VT" },
+            'nm': { nome: "Números", abrev: "NUME", capitulos: 36, testament: "VT" },
+            'dt': { nome: "Deuteronômio", abrev: "DEUT", capitulos: 34, testament: "VT" },
+            'js': { nome: "Josué", abrev: "JOSU", capitulos: 24, testament: "VT" },
+            'jz': { nome: "Juízes", abrev: "JUIZ", capitulos: 21, testament: "VT" },
+            'rt': { nome: "Rute", abrev: "RUTE", capitulos: 4, testament: "VT" },
+            '1sm': { nome: "1 Samuel", abrev: "1SAM", capitulos: 31, testament: "VT" },
+            '2sm': { nome: "2 Samuel", abrev: "2SAM", capitulos: 24, testament: "VT" },
+            '1rs': { nome: "1 Reis", abrev: "1REI", capitulos: 22, testament: "VT" },
+            '2rs': { nome: "2 Reis", abrev: "2REI", capitulos: 25, testament: "VT" },
+            '1cr': { nome: "1 Crônicas", abrev: "1CRO", capitulos: 29, testament: "VT" },
+            '2cr': { nome: "2 Crônicas", abrev: "2CRO", capitulos: 36, testament: "VT" },
+            'ed': { nome: "Esdras", abrev: "ESDR", capitulos: 10, testament: "VT" },
+            'ne': { nome: "Neemias", abrev: "NEEM", capitulos: 13, testament: "VT" },
+            'et': { nome: "Ester", abrev: "ESTE", capitulos: 10, testament: "VT" },
+            'jó': { nome: "Jó", abrev: "JÓ  ", capitulos: 42, testament: "VT" }, // Espaços para manter 4 caracteres
+            'sl': { nome: "Salmos", abrev: "SALM", capitulos: 150, testament: "VT" },
+            'pv': { nome: "Provérbios", abrev: "PROV", capitulos: 31, testament: "VT" },
+            'ec': { nome: "Eclesiastes", abrev: "ECLE", capitulos: 12, testament: "VT" },
+            'ct': { nome: "Cânticos", abrev: "CANT", capitulos: 8, testament: "VT" },
+            'is': { nome: "Isaías", abrev: "ISAI", capitulos: 66, testament: "VT" },
+            'jr': { nome: "Jeremias", abrev: "JERE", capitulos: 52, testament: "VT" },
+            'lm': { nome: "Lamentações", abrev: "LAME", capitulos: 5, testament: "VT" },
+            'ez': { nome: "Ezequiel", abrev: "EZEQ", capitulos: 48, testament: "VT" },
+            'dn': { nome: "Daniel", abrev: "DANI", capitulos: 12, testament: "VT" },
+            'os': { nome: "Oseias", abrev: "OSEI", capitulos: 14, testament: "VT" },
+            'jl': { nome: "Joel", abrev: "JOEL", capitulos: 3, testament: "VT" },
+            'am': { nome: "Amós", abrev: "AMÓS", capitulos: 9, testament: "VT" },
+            'ob': { nome: "Obadias", abrev: "OBAD", capitulos: 1, testament: "VT" },
+            'jn': { nome: "Jonas", abrev: "JONA", capitulos: 4, testament: "VT" },
+            'mq': { nome: "Miqueias", abrev: "MIQU", capitulos: 7, testament: "VT" },
+            'na': { nome: "Naum", abrev: "NAUM", capitulos: 3, testament: "VT" },
+            'hc': { nome: "Habacuque", abrev: "HABA", capitulos: 3, testament: "VT" },
+            'sf': { nome: "Sofonias", abrev: "SOFO", capitulos: 3, testament: "VT" },
+            'ag': { nome: "Ageu", abrev: "AGEU", capitulos: 2, testament: "VT" },
+            'zc': { nome: "Zacarias", abrev: "ZACA", capitulos: 14, testament: "VT" },
+            'ml': { nome: "Malaquias", abrev: "MALA", capitulos: 4, testament: "VT" },
+            'mt': { nome: "Mateus", abrev: "MATE", capitulos: 28, testament: "NT" },
+            'mc': { nome: "Marcos", abrev: "MARC", capitulos: 16, testament: "NT" },
+            'lc': { nome: "Lucas", abrev: "LUCA", capitulos: 24, testament: "NT" },
+            'jo': { nome: "João", abrev: "JOÃO", capitulos: 21, testament: "NT" },
+            'at': { nome: "Atos", abrev: "ATOS", capitulos: 28, testament: "NT" },
+            'rm': { nome: "Romanos", abrev: "ROMA", capitulos: 16, testament: "NT" },
+            '1co': { nome: "1 Coríntios", abrev: "1COR", capitulos: 16, testament: "NT" },
+            '2co': { nome: "2 Coríntios", abrev: "2COR", capitulos: 13, testament: "NT" },
+            'gl': { nome: "Gálatas", abrev: "GALA", capitulos: 6, testament: "NT" },
+            'ef': { nome: "Efésios", abrev: "EFES", capitulos: 6, testament: "NT" },
+            'fp': { nome: "Filipenses", abrev: "FILI", capitulos: 4, testament: "NT" },
+            'cl': { nome: "Colossenses", abrev: "COLO", capitulos: 4, testament: "NT" },
+            '1ts': { nome: "1 Tessalonicenses", abrev: "1TES", capitulos: 5, testament: "NT" },
+            '2ts': { nome: "2 Tessalonicenses", abrev: "2TES", capitulos: 3, testament: "NT" },
+            '1tm': { nome: "1 Timóteo", abrev: "1TIM", capitulos: 6, testament: "NT" },
+            '2tm': { nome: "2 Timóteo", abrev: "2TIM", capitulos: 4, testament: "NT" },
+            'tt': { nome: "Tito", abrev: "TITO", capitulos: 3, testament: "NT" },
+            'fm': { nome: "Filemom", abrev: "FILE", capitulos: 1, testament: "NT" },
+            'hb': { nome: "Hebreus", abrev: "HEBR", capitulos: 13, testament: "NT" },
+            'tg': { nome: "Tiago", abrev: "TIAG", capitulos: 5, testament: "NT" },
+            '1pe': { nome: "1 Pedro", abrev: "1PED", capitulos: 5, testament: "NT" },
+            '2pe': { nome: "2 Pedro", abrev: "2PED", capitulos: 3, testament: "NT" },
+            '1jo': { nome: "1 João", abrev: "1JOA", capitulos: 5, testament: "NT" },
+            '2jo': { nome: "2 João", abrev: "2JOA", capitulos: 1, testament: "NT" },
+            '3jo': { nome: "3 João", abrev: "3JOA", capitulos: 1, testament: "NT" },
+            'jd': { nome: "Judas", abrev: "JUDA", capitulos: 1, testament: "NT" },
+            'ap': { nome: "Apocalipse", abrev: "APOC", capitulos: 22, testament: "NT" }
         };
 
         const DISTRIBUICAO_PARTES = {
