@@ -705,16 +705,16 @@
         </div>
     </div>
 
-    <script>
+   <script>
         "use strict";
 
-              // ============ LÓGICA DA BÍBLIA (Nomes dos botões abreviados) ============
+        // ============ LÓGICA DA BÍBLIA (Nomes dos botões abreviados) ============
         let BIBLIA_DADOS = null;
         let parteCarregada = 0;
         let livroAtual = 'gn';
         let capituloAtual = 1;
 
-       const LIVROS_API = {
+        const LIVROS_API = {
             'gn': { nome: "Gênesis", abrev: "GENE", capitulos: 50, testament: "VT" },
             'ex': { nome: "Êxodo", abrev: "EXOD", capitulos: 40, testament: "VT" },
             'lv': { nome: "Levítico", abrev: "LEVI", capitulos: 27, testament: "VT" },
@@ -732,7 +732,7 @@
             'ed': { nome: "Esdras", abrev: "ESDR", capitulos: 10, testament: "VT" },
             'ne': { nome: "Neemias", abrev: "NEEM", capitulos: 13, testament: "VT" },
             'et': { nome: "Ester", abrev: "ESTE", capitulos: 10, testament: "VT" },
-            'jó': { nome: "Jó", abrev: "JÓ  ", capitulos: 42, testament: "VT" }, // Espaços para manter 4 caracteres
+            'jó': { nome: "Jó", abrev: "JÓ  ", capitulos: 42, testament: "VT" },
             'sl': { nome: "Salmos", abrev: "SALM", capitulos: 150, testament: "VT" },
             'pv': { nome: "Provérbios", abrev: "PROV", capitulos: 31, testament: "VT" },
             'ec': { nome: "Eclesiastes", abrev: "ECLE", capitulos: 12, testament: "VT" },
@@ -863,8 +863,15 @@
 
             filtrados.sort((a, b) => a.versiculo - b.versiculo);
 
+            // Código modificado aqui para adicionar o botão de voz de forma alinhada
             container.innerHTML = filtrados.map(v => `
-                <div class="verso"><span><b>${v.versiculo}.</b> ${v.texto}</span></div>
+                <div class="verso" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 14px;">
+                    <span><b>${v.versiculo}.</b> ${v.texto}</span>
+                    <button class="btn-nav ripple" 
+                            style="width: 38px; height: 38px; font-size: 1rem; margin-top: 2px; flex-shrink: 0;" 
+                            onclick="falarVersiculo('${v.texto.replace(/'/g, "\\'")}', this)" 
+                            title="Ouvir versículo">🔊</button>
+                </div>
             `).join('');
 
             document.getElementById('nomeLivroAtual').textContent = LIVROS_API[livroAtual].nome;
@@ -878,12 +885,19 @@
         }
 
         window.mudarCapitulo = (dir) => {
+            // Se mudar de capítulo, interrompe a voz atual para não misturar os áudios
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
             capituloAtual += dir;
             document.getElementById('selectCapituloTopo').value = capituloAtual;
             renderizarVersiculos();
         };
 
         window.aoMudarCapituloTopo = () => {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
             capituloAtual = parseInt(document.getElementById('selectCapituloTopo').value);
             renderizarVersiculos();
         };
@@ -911,6 +925,9 @@
                 btn.title = LIVROS_API[key].nome;        /* Mostra o nome completo ao passar o mouse */
                 btn.dataset.id = key;
                 btn.onclick = async () => {
+                    if (window.speechSynthesis.speaking) {
+                        window.speechSynthesis.cancel();
+                    }
                     livroAtual = key;
                     capituloAtual = 1;
                     montarSelect();
@@ -925,7 +942,48 @@
             buscarDadosDaBiblia().then(ok => { if (ok) renderizarVersiculos(); });
         }
 
+        // ============ FUNÇÃO DE IA DE VOZ (TEXT-TO-SPEECH) ============
+        let audioPrevio = null;
+
+        window.falarVersiculo = (texto, botao) => {
+            // Se já estiver tocando alguma coisa, cancela a reprodução
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                if (audioPrevio) audioPrevio.textContent = "🔊";
+                
+                // Se o usuário clicou no mesmo botão que estava falando, apenas para tudo e sai
+                if (audioPrevio === botao) {
+                    audioPrevio = null;
+                    return;
+                }
+            }
+
+            // Configura o motor de fala nativo do aparelho
+            const mensagem = new SpeechSynthesisUtterance(texto);
+            mensagem.lang = 'pt-BR'; // Força o idioma para Português do Brasil
+            mensagem.rate = 1.0;     // Define uma velocidade de leitura padrão e confortável
+
+            // Evento executado quando a leitura chega ao fim
+            mensagem.onend = () => {
+                botao.textContent = "🔊";
+                audioPrevio = null;
+            };
+
+            // Evento executado caso ocorra algum erro ou interrupção na voz
+            mensagem.onerror = () => {
+                botao.textContent = "🔊";
+                audioPrevio = null;
+            };
+
+            // Atualiza os estados dos botões
+            botao.textContent = "🛑";
+            audioPrevio = botao;
+
+            // Ativa o som
+            window.speechSynthesis.speak(mensagem);
+        };
+
         window.onload = inicializar;
-    </script>
+</script>
 </body>
 </html>
