@@ -863,16 +863,19 @@
 
             filtrados.sort((a, b) => a.versiculo - b.versiculo);
 
-            // Código modificado aqui para adicionar o botão de voz de forma alinhada
-            container.innerHTML = filtrados.map(v => `
-                <div class="verso" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 14px;">
-                    <span><b>${v.versiculo}.</b> ${v.texto}</span>
-                    <button class="btn-nav ripple" 
-                            style="width: 38px; height: 38px; font-size: 1rem; margin-top: 2px; flex-shrink: 0;" 
-                            onclick="falarVersiculo('${v.texto.replace(/'/g, "\\'")}', this)" 
-                            title="Ouvir versículo">🔊</button>
-                </div>
-            `).join('');
+            // Tratamento rigoroso de caracteres especiais para o clique funcionar perfeitamente
+            container.innerHTML = filtrados.map(v => {
+                const textoLimpo = v.texto.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, " ").replace(/\r/g, "");
+                return `
+                    <div class="verso" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 14px;">
+                        <span><b>${v.versiculo}.</b> ${v.texto}</span>
+                        <button class="btn-nav ripple" 
+                                style="width: 38px; height: 38px; font-size: 1rem; margin-top: 2px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;" 
+                                onclick="falarVersiculo('${textoLimpo}', this)" 
+                                title="Ouvir versículo">🔊</button>
+                    </div>
+                `;
+            }).join('');
 
             document.getElementById('nomeLivroAtual').textContent = LIVROS_API[livroAtual].nome;
             document.getElementById('infoCapitulo').textContent = `Cap. ${capituloAtual}`;
@@ -885,8 +888,7 @@
         }
 
         window.mudarCapitulo = (dir) => {
-            // Se mudar de capítulo, interrompe a voz atual para não misturar os áudios
-            if (window.speechSynthesis.speaking) {
+            if (window.speechSynthesis) {
                 window.speechSynthesis.cancel();
             }
             capituloAtual += dir;
@@ -895,7 +897,7 @@
         };
 
         window.aoMudarCapituloTopo = () => {
-            if (window.speechSynthesis.speaking) {
+            if (window.speechSynthesis) {
                 window.speechSynthesis.cancel();
             }
             capituloAtual = parseInt(document.getElementById('selectCapituloTopo').value);
@@ -921,11 +923,11 @@
             Object.keys(LIVROS_API).forEach(key => {
                 const btn = document.createElement('div');
                 btn.className = 'botao-livro ripple';
-                btn.textContent = LIVROS_API[key].abrev; /* Mostra o nome abreviado no botão */
-                btn.title = LIVROS_API[key].nome;        /* Mostra o nome completo ao passar o mouse */
+                btn.textContent = LIVROS_API[key].abrev;
+                btn.title = LIVROS_API[key].nome;
                 btn.dataset.id = key;
                 btn.onclick = async () => {
-                    if (window.speechSynthesis.speaking) {
+                    if (window.speechSynthesis) {
                         window.speechSynthesis.cancel();
                     }
                     livroAtual = key;
@@ -942,45 +944,58 @@
             buscarDadosDaBiblia().then(ok => { if (ok) renderizarVersiculos(); });
         }
 
-        // ============ FUNÇÃO DE IA DE VOZ (TEXT-TO-SPEECH) ============
+        // ============ FUNÇÃO DE IA DE VOZ CORRIGIDA (TEXT-TO-SPEECH) ============
         let audioPrevio = null;
 
         window.falarVersiculo = (texto, botao) => {
-            // Se já estiver tocando alguma coisa, cancela a reprodução
+            if (!window.speechSynthesis) {
+                alert("Seu navegador ou aparelho não suporta leitura de voz.");
+                return;
+            }
+
+            // Se clicar no mesmo botão que já está falando, ele cancela e para tudo
+            if (window.speechSynthesis.speaking && audioPrevio === botao) {
+                window.speechSynthesis.cancel();
+                botao.textContent = "🔊";
+                audioPrevio = null;
+                return;
+            }
+
+            // Se outro versículo estava sendo lido, interrompe para começar o novo
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
                 if (audioPrevio) audioPrevio.textContent = "🔊";
-                
-                // Se o usuário clicou no mesmo botão que estava falando, apenas para tudo e sai
-                if (audioPrevio === botao) {
-                    audioPrevio = null;
-                    return;
-                }
             }
 
-            // Configura o motor de fala nativo do aparelho
             const mensagem = new SpeechSynthesisUtterance(texto);
-            mensagem.lang = 'pt-BR'; // Força o idioma para Português do Brasil
-            mensagem.rate = 1.0;     // Define uma velocidade de leitura padrão e confortável
+            mensagem.lang = 'pt-BR';
+            mensagem.rate = 1.0; // Velocidade natural
 
-            // Evento executado quando a leitura chega ao fim
+            // Monitora quando a voz realmente começa a sair das caixas de som
+            mensagem.onstart = () => {
+                botao.textContent = "🛑";
+                audioPrevio = botao;
+            };
+
+            // Monitora quando a leitura acaba sozinha
             mensagem.onend = () => {
                 botao.textContent = "🔊";
-                audioPrevio = null;
+                if (audioPrevio === botao) audioPrevio = null;
             };
 
-            // Evento executado caso ocorra algum erro ou interrupção na voz
+            // Trata qualquer imprevisto ou bloqueio do celular
             mensagem.onerror = () => {
                 botao.textContent = "🔊";
-                audioPrevio = null;
+                if (audioPrevio === botao) audioPrevio = null;
+                window.speechSynthesis.cancel();
             };
 
-            // Atualiza os estados dos botões
+            // Inicia a reprodução
+            window.speechSynthesis.speak(mensagem);
+
+            // Força a mudança visual imediata (ajuda em sistemas Android antigos)
             botao.textContent = "🛑";
             audioPrevio = botao;
-
-            // Ativa o som
-            window.speechSynthesis.speak(mensagem);
         };
 
         window.onload = inicializar;
