@@ -944,16 +944,17 @@
             buscarDadosDaBiblia().then(ok => { if (ok) renderizarVersiculos(); });
         }
 
-        // ============ FUNÇÃO DE IA DE VOZ CORRIGIDA (TEXT-TO-SPEECH) ============
+       // ============ FUNÇÃO DE IA DE VOZ INTELIGENTE E SEM ALERTAS ============
         let audioPrevio = null;
 
         window.falarVersiculo = (texto, botao) => {
+            // Verifica se o navegador bloqueou o sistema de voz silenciosamente
             if (!window.speechSynthesis) {
-                alert("Seu navegador ou aparelho não suporta leitura de voz.");
+                console.log("Leitura de voz indisponível neste navegador.");
                 return;
             }
 
-            // Se clicar no mesmo botão que já está falando, ele cancela e para tudo
+            // Se clicar no mesmo botão que já está falando, cancela e para tudo
             if (window.speechSynthesis.speaking && audioPrevio === botao) {
                 window.speechSynthesis.cancel();
                 botao.textContent = "🔊";
@@ -969,9 +970,9 @@
 
             const mensagem = new SpeechSynthesisUtterance(texto);
             mensagem.lang = 'pt-BR';
-            mensagem.rate = 1.0; // Velocidade natural
+            mensagem.rate = 1.0; 
 
-            // Monitora quando a voz realmente começa a sair das caixas de som
+            // Monitora quando a voz realmente começa a sair
             mensagem.onstart = () => {
                 botao.textContent = "🛑";
                 audioPrevio = botao;
@@ -983,7 +984,7 @@
                 if (audioPrevio === botao) audioPrevio = null;
             };
 
-            // Trata qualquer imprevisto ou bloqueio do celular
+            // Trata erros de bloqueio sem travar a tela com alertas
             mensagem.onerror = () => {
                 botao.textContent = "🔊";
                 if (audioPrevio === botao) audioPrevio = null;
@@ -993,7 +994,7 @@
             // Inicia a reprodução
             window.speechSynthesis.speak(mensagem);
 
-            // Força a mudança visual imediata (ajuda em sistemas Android antigos)
+            // Modificação visual preventiva
             botao.textContent = "🛑";
             audioPrevio = botao;
         };
