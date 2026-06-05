@@ -708,25 +708,7 @@
     <script>
         "use strict";
 
-        // ============ GERAR PARTÍCULAS DE FUNDO ============
-        (function gerarParticulas() {
-            const container = document.getElementById('particulasBg');
-            const numParticulas = 35;
-            for (let i = 0; i < numParticulas; i++) {
-                const p = document.createElement('div');
-                p.classList.add('particula');
-                const size = Math.random() * 3.5 + 1.5;
-                p.style.width = size + 'px';
-                p.style.height = size + 'px';
-                p.style.left = Math.random() * 100 + '%';
-                p.style.animationDuration = (Math.random() * 18 + 10) + 's';
-                p.style.animationDelay = (Math.random() * 15) + 's';
-                p.style.setProperty('--brilho', Math.random() * 0.5 + 0.3);
-                container.appendChild(p);
-            }
-        })();
-
-        // ============ LÓGICA DA BÍBLIA (Nomes dos botões abreviados) ============
+              // ============ LÓGICA DA BÍBLIA (Nomes dos botões abreviados) ============
         let BIBLIA_DADOS = null;
         let parteCarregada = 0;
         let livroAtual = 'gn';
